@@ -1,4 +1,6 @@
 # WebApp
+
+https://wikistats.streamlit.app/
 Based on my previous work of survey on TanvirSdqBot. 
 
 ## 🌍 Wikimedia Cross-Event Retention Dashboard
@@ -18,14 +20,3 @@ By leveraging the Wikimedia Toolforge API, this dashboard rapidly fetches partic
 * **📋 Data Tables & Export:** View raw retention metrics (Average, Median, Max, Standard Deviation) and download the results as a CSV file for offline analysis.
 * **🌙 Custom Dark UI:** A beautifully customized, Wikipedia-inspired dark theme with responsive metric cards and segmented controls.
 
----
-
-## 🚀 Installation & Setup
-
-### 1. Prerequisites
-Ensure you have **Python 3.8+** installed on your system.
-
-### 2. Clone the Repository
-```bash
-git clone [https://github.com/your-username/wikimedia-retention-dashboard.git](https://github.com/your-username/wikimedia-retention-dashboard.git)
-cd wikimedia-retention-dashboard
