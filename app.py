@@ -16,13 +16,18 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- WIKIPEDIA THEME ---
-WIKI_BLUE = "#3366cc"      # Wikipedia link blue
+# --- WIKIPEDIA-INSPIRED DARK THEME (forced — not left to the visitor's OS/browser setting) ---
+WIKI_BLUE = "#3366cc"        # Wikipedia link blue
+WIKI_BLUE_LIGHT = "#7aa7ff"  # brighter accent, readable on dark backgrounds
 WIKI_BLUE_DARK = "#14428e"
-WIKI_INK = "#202122"       # Wikipedia body text
-WIKI_GRAY = "#54595d"
-WIKI_BG = "#f8f9fa"        # Wikipedia page background
-WIKI_LIGHT = "#eaf3ff"
+WIKI_INK = "#202122"         # dark text — used only on light content cards
+WIKI_GRAY = "#54595d"        # muted text — used only on light content cards
+CARD_LIGHT = "#f7f9fc"       # light card surface for charts/metrics (contrast anchor)
+
+BG_DEEP = "#0a1526"
+BG_MID = "#13284a"
+TEXT_LIGHT = "#eef3fc"
+TEXT_MUTED = "#a9b9d8"
 
 CUSTOM_CSS = f"""
 <style>
@@ -32,13 +37,21 @@ CUSTOM_CSS = f"""
         font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
     }}
 
+    /* Force one cohesive dark canvas regardless of the visitor's system theme */
     .stApp {{
-        background: linear-gradient(180deg, {WIKI_LIGHT} 0%, #ffffff 40%);
+        background: radial-gradient(circle at 10% -10%, {BG_MID} 0%, {BG_DEEP} 55%, #060d1a 100%) !important;
+    }}
+    .stApp, .stApp p, .stApp li, .stApp label {{
+        color: {TEXT_LIGHT} !important;
+    }}
+    div[data-testid="stMarkdownContainer"] p {{
+        color: {TEXT_MUTED} !important;
     }}
 
-    /* Sidebar */
+    /* Sidebar — same dark family, slightly richer, so the seam disappears */
     section[data-testid="stSidebar"] {{
-        background: linear-gradient(160deg, {WIKI_INK} 0%, {WIKI_BLUE_DARK} 55%, {WIKI_BLUE} 100%);
+        background: linear-gradient(165deg, #0d1c33 0%, {WIKI_BLUE_DARK} 65%, {WIKI_BLUE} 100%) !important;
+        border-right: 1px solid rgba(255, 255, 255, 0.06);
     }}
     section[data-testid="stSidebar"] * {{
         color: #f5f8ff !important;
@@ -73,7 +86,7 @@ CUSTOM_CSS = f"""
     /* Buttons */
     .stButton > button {{
         background: linear-gradient(90deg, {WIKI_BLUE} 0%, {WIKI_BLUE_DARK} 100%);
-        color: white;
+        color: white !important;
         border: none;
         border-radius: 10px;
         font-weight: 600;
@@ -84,44 +97,57 @@ CUSTOM_CSS = f"""
     .stButton > button:hover {{
         transform: translateY(-1px);
         box-shadow: 0 6px 18px rgba(51, 102, 204, 0.45);
-        color: white;
+        color: white !important;
+    }}
+    .stButton > button p {{
+        color: white !important;
     }}
 
-    /* Titles */
-    h1 {{
-        color: {WIKI_INK};
+    /* Hero title — gradient text instead of an emoji icon */
+    .hero-title {{
+        font-size: 2.6rem;
         font-weight: 800;
-        letter-spacing: -0.5px;
-    }}
-    h1 span.accent {{
-        background: linear-gradient(90deg, {WIKI_BLUE}, {WIKI_BLUE_DARK});
+        letter-spacing: -1px;
+        line-height: 1.15;
+        margin: 0.4rem 0 0.15rem 0;
+        background: linear-gradient(90deg, {WIKI_BLUE_LIGHT} 0%, {WIKI_BLUE} 55%, #9b8cff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }}
+    .hero-subtitle {{
+        color: {TEXT_MUTED} !important;
+        font-size: 1.05rem;
+        margin-bottom: 1.2rem;
     }}
 
-    /* Metric cards */
+    /* Metric cards — light surface for strong contrast against the dark canvas */
     div[data-testid="stMetric"] {{
-        background: #ffffff;
-        border: 1px solid #e2e8f5;
+        background: {CARD_LIGHT};
+        border: 1px solid rgba(20, 66, 142, 0.12);
         border-radius: 14px;
         padding: 1rem 1.2rem;
-        box-shadow: 0 2px 10px rgba(20, 66, 142, 0.06);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+    }}
+    div[data-testid="stMetricLabel"] p {{
+        color: {WIKI_GRAY} !important;
+        font-weight: 600;
     }}
     div[data-testid="stMetricValue"] {{
-        color: {WIKI_BLUE_DARK};
+        color: {WIKI_BLUE_DARK} !important;
         font-weight: 800;
     }}
 
-    /* Heatmap cards */
+    /* Heatmap cards — same light-surface treatment, matches the chart's own colors */
     div[data-testid="stVerticalBlockBorderWrapper"] {{
-        background: #ffffff;
+        background: {CARD_LIGHT};
         border-radius: 16px;
-        box-shadow: 0 4px 18px rgba(20, 66, 142, 0.08);
+        box-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
         padding: 0.25rem;
     }}
 
     hr {{
-        border-color: #dbe4f5;
+        border-color: rgba(255, 255, 255, 0.12);
     }}
 </style>
 """
@@ -147,7 +173,7 @@ EXAMPLE_CODES = "wlfbd21 wlfbd22 wlfbd23 wlfin21 wlfin22 wlfin23"
 
 # Wikipedia-blue gradient colormap for heatmaps
 WIKI_CMAP = LinearSegmentedColormap.from_list(
-    "wiki_blue", ["#f8f9fa", "#bcd4f7", WIKI_BLUE, WIKI_BLUE_DARK, "#0b2b5c"]
+    "wiki_blue", [CARD_LIGHT, "#bcd4f7", WIKI_BLUE, WIKI_BLUE_DARK, "#0b2b5c"]
 )
 
 # --- FUNCTIONS ---
@@ -222,8 +248,8 @@ def create_heatmap(events, country_name):
                 matrix[i, j] = (overlap / len(source_users)) * 100
 
     fig, ax = plt.subplots(figsize=(max(5, size * 1.2), max(4, size)))
-    fig.patch.set_alpha(0)
-    ax.patch.set_alpha(0)
+    fig.patch.set_facecolor(CARD_LIGHT)
+    ax.patch.set_facecolor(CARD_LIGHT)
 
     sns.heatmap(
         matrix, annot=True, fmt=".1f",
@@ -322,8 +348,11 @@ with st.sidebar:
     st.caption("Powered by Wikimedia Toolforge & Streamlit")
 
 st.markdown("<br>", unsafe_allow_html=True)
-st.title("🌍 Cross-Event Retention Dashboard")
-st.markdown("Analyze how many users return across different Wikimedia campaigns and regions.")
+st.markdown('<div class="hero-title">Cross-Event Retention Dashboard</div>', unsafe_allow_html=True)
+st.markdown(
+    '<div class="hero-subtitle">Analyze how many users return across different Wikimedia campaigns and regions.</div>',
+    unsafe_allow_html=True
+)
 
 if run_button:
     raw_input = user_input.strip() or EXAMPLE_CODES
